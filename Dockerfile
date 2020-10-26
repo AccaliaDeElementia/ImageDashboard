@@ -1,4 +1,4 @@
-FROM nodejs:14-alpine
+FROM node:14-alpine
 
 WORKDIR /home/node/app
 ADD . /home/node/app
@@ -14,3 +14,7 @@ ENV NODE_ENV=production \
   POSTGRES_PASSWORD=postgres \
   OPENWEATHER_APPID="" \
   OPENWEATHER_LOCATION=London
+
+RUN npm install
+
+CMD ['npm', 'start']
