@@ -36,6 +36,10 @@ const getWeather = () => {
           return `${d}${suffix}`
         }
       }
+      if (!weather.temp) {
+        document.querySelector('.weather').style.display = 'none'
+        return
+      }
       document.querySelector('.weather').style.display = 'block'
       document.querySelector('.temp').innerHTML = fmt(weather.temp, '&deg;C')
       document.querySelector('.desctext').innerHTML = fmt(weather.description)
