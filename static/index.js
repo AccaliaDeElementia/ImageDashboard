@@ -1,16 +1,12 @@
 'use sanity'
 
-const DayOfWeek = (date) => {
-  return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][date.getDay()]
-}
+const timeRefresh = 1000
+const imageRefresh = 1 * 60 * 1000
+const weatherRefresh = 10 * 60 * 1000
 
-const Month = (date) => {
-  return ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][date.getMonth()]
-}
-
-let nextCycle = Date.now() + 2 * 60 * 1000
+let nextCycle = Date.now() + imageRefresh
 const cycleImage = () => {
-  nextCycle = Date.now() + 2 * 60 * 1000
+  nextCycle = Date.now() + imageRefresh
   const path = `/image?${Date.now()}`
   Array.prototype.forEach.apply(document.querySelectorAll('.image'), [img => {
     img.src = path
@@ -19,14 +15,15 @@ const cycleImage = () => {
 
 const updateTime = () => {
   const now = new Date()
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
   document.querySelector('.time').innerHTML = `${('00' + now.getHours()).slice(-2)}:${('00' + now.getMinutes()).slice(-2)}`
-  document.querySelector('.date').innerHTML = `${DayOfWeek(now)}, ${Month(now)} ${now.getDate()}`
+  document.querySelector('.date').innerHTML = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`
 }
 
 const getWeather = () => {
   const request = new XMLHttpRequest()
   request.open('GET', '/weather.json', true)
-
   request.onload = () => {
     if (request.status >= 200 && request.status < 400) {
       const weather = JSON.parse(request.responseText)
@@ -54,6 +51,7 @@ const getWeather = () => {
 }
 
 document.body.addEventListener('click', cycleImage)
+document.body.addEventListener('keydown', cycleImage)
 updateTime()
 getWeather()
 setInterval(() => {
@@ -61,5 +59,5 @@ setInterval(() => {
   if (Date.now() >= nextCycle) {
     cycleImage()
   }
-}, 1000)
-setInterval(getWeather, 10 * 60 * 1000)
+}, timeRefresh)
+setInterval(getWeather, weatherRefresh)
