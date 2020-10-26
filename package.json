@@ -1,0 +1,33 @@
+{
+  "name": "imagedashboard",
+  "version": "1.0.0",
+  "description": "Image Dashboard",
+  "main": "server.js",
+  "scripts": {
+    "test": "eslint .",
+    "knex": "knex"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AccaliaDeElementia/ImageDashboard.git"
+  },
+  "author": "Accalia Elementia",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AccaliaDeElementia/ImageDashboard/issues"
+  },
+  "homepage": "https://github.com/AccaliaDeElementia/ImageDashboard#readme",
+  "devDependencies": {
+    "eslint": "^7.12.0",
+    "eslint-config-standard": "^15.0.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.2"
+  },
+  "dependencies": {
+    "knex": "^0.21.7",
+    "postgres": "^1.0.2",
+    "sqlite3": "^5.0.0"
+  }
+}
