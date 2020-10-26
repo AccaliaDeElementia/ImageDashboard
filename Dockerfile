@@ -17,4 +17,4 @@ ENV NODE_ENV=production \
 
 RUN npm install
 
-CMD ['npm', 'start']
+CMD ["npm", "start"]
