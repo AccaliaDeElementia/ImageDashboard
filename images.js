@@ -57,6 +57,6 @@ exports.syncImages = async () => {
   await db('images').whereNotExists(function () {
     this.select('*').from('syncitems').whereRaw('syncitems.image = images.image')
   }).delete()
-  const count = await db('images').count('*')
-  console.log(count)
+  const count = (await db('images').count('*'))[0]['count(*)']
+  console.log('total images found: ', count)
 }

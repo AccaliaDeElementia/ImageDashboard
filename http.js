@@ -4,6 +4,8 @@ const { join } = require('path')
 const { URL } = require('url')
 const http = require('http')
 
+const { getWeather } = require('./weather')
+
 const streamFile = (file, res) => {
   var readStream = createReadStream(file)
   readStream.on('open', function () {
@@ -25,6 +27,11 @@ const serveImage = async (res) => {
   streamFile(join('/data', image), res)
 }
 
+const serveData = (data, res) => {
+  res.statusCode = 200
+  res.end(JSON.stringify(data))
+}
+
 exports.startServer = () => {
   http.createServer(function (req, res) {
     const url = new URL(req.url, 'http://localhost')
@@ -38,6 +45,9 @@ exports.startServer = () => {
         break
       case '/index.css':
         serveFile('index.css', res)
+        break
+      case '/weather.json':
+        serveData(getWeather(), res)
         break
       case '/image':
         serveImage(res)

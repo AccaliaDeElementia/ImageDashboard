@@ -7,3 +7,5 @@ Env Variables:
 - `POSTGRES_DATABASE` - The postgres database name to use, defaults to `postgres`
 - `POSTGRES_USER` - The postgres username to use, defaults to `postgres`
 - `POSTGRES_PASSWORD` - The postgres password to use, defaults to `postgres`
+- `OPENWEATHER_APPID` - The OpenWeather API Key to use to query data from, if not provided no weather data will be queried.
+- `OPENWEATHER_LOCATION` - The OpenWeather Location to query data from, Defaults to `London`
