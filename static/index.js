@@ -31,7 +31,7 @@ const getWeather = () => {
         if (d === undefined || d === null) {
           return ''
         } else if (typeof d === 'number') {
-          return `${d.toPrecision(1)}${suffix}`
+          return `${d.toFixed(0)}${suffix}`
         } else {
           return `${d}${suffix}`
         }
