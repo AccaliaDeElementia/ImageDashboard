@@ -3,12 +3,14 @@
 const { promises: { readdir } } = require('fs')
 const { extname, join } = require('path')
 
-const chunks = (arr, size = 200) => {
-  const res = []
-  for (let i = 0; i < arr.length; i += size) {
-    res.push(arr.slice(i, i + size))
+function hashit (str) {
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    const chr = str.charCodeAt(i)
+    hash = ((hash << 5) - hash) + chr
+    hash |= 0
   }
-  return res
+  return hash
 }
 
 async function walkDirectory (root, eachDir, extensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg', '.tif', '.tiff', '.bmp', '.jpe']) {
@@ -34,29 +36,26 @@ async function walkDirectory (root, eachDir, extensions = ['.jpg', '.jpeg', '.pn
   }
 }
 
+let images = []
+
 exports.syncImages = async () => {
-  const db = await require('./db').initialize
-  await db('syncitems').truncate()
+  const results = []
   await walkDirectory('/data', async (items, pending) => {
-    for (const chunk of chunks(items)) {
-      await db('syncitems').insert(chunk.map(image => {
-        return {
-          image
-        }
-      }))
-    }
+    results.push(...items)
     console.log('pending items', pending)
   })
-  await db('images').insert(function () {
-    this.select('syncitems.image').from('syncitems')
-      .leftJoin('images', 'images.image', 'syncitems.image')
-      .andWhere({
-        'images.image': null
-      })
+  results.sort((a, b) => {
+    const hasha = hashit(a)
+    const hashb = hashit(b)
+    if (hasha === hashb) {
+      return 0
+    }
+    return hasha < hashb ? -1 : 1
   })
-  await db('images').whereNotExists(function () {
-    this.select('*').from('syncitems').whereRaw('syncitems.image = images.image')
-  }).delete()
-  const count = (await db('images').count('*'))[0]['count(*)']
-  console.log('total images found: ', count)
+  console.log('total images found: ', results.length)
+  images = results
+}
+
+exports.getImage = (index) => {
+  return images[index % images.length]
 }

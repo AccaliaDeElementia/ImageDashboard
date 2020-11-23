@@ -5,6 +5,7 @@ const { URL } = require('url')
 const http = require('http')
 
 const { getWeather } = require('./weather')
+const { getImage } = require('./images')
 
 const streamFile = (file, res) => {
   var readStream = createReadStream(file)
@@ -22,8 +23,7 @@ const serveFile = (file, res) => {
 }
 
 const serveImage = async (res) => {
-  const db = await require('./db').initialize
-  const image = (await db('images').first('image').orderByRaw('random()')).image
+  const image = getImage((Date.now() / 60 / 1000) | 0)
   streamFile(join('/data', image), res)
 }
 

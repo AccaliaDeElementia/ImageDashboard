@@ -45,7 +45,16 @@ body {
   left: .5em;
   top: .5em;
   margin-top: -0.15em;
-  margin-bottom: -.15em;
+  margin-bottom: -0.15em;
+  text-align: left;
+}
+
+.localweather {
+  position: fixed;
+  left: .5em;
+  bottom: .5em;
+  margin-top: -0.15em;
+  margin-bottom: -0.15em;
   text-align: left;
 }
 

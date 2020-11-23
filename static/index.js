@@ -21,9 +21,9 @@ const updateTime = () => {
   document.querySelector('.date').innerHTML = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`
 }
 
-const getWeather = () => {
+const fetchDisplayWeather = (node, url) => {
   const request = new XMLHttpRequest()
-  request.open('GET', '/weather.json', true)
+  request.open('GET', url, true)
   request.onload = () => {
     if (request.status >= 200 && request.status < 400) {
       const weather = JSON.parse(request.responseText)
@@ -31,7 +31,7 @@ const getWeather = () => {
         if (d === undefined || d === null) {
           return ''
         } else if (typeof d === 'number') {
-          return `${d.toFixed(0)}${suffix}`
+          return `${d.toFixed(1)}${suffix}`
         } else {
           return `${d}${suffix}`
         }
@@ -40,18 +40,28 @@ const getWeather = () => {
         document.querySelector('.weather').style.display = 'none'
         return
       }
-      document.querySelector('.weather').style.display = 'block'
-      document.querySelector('.temp').innerHTML = fmt(weather.temp, '&deg;C')
-      document.querySelector('.desctext').innerHTML = fmt(weather.description)
-      document.querySelector('.icon').src = `https://openweathermap.org/img/w/${fmt(weather.icon)}.png`
+      node.style.display = 'block'
+      node.querySelector('.temp').innerHTML = fmt(weather.temp, '&deg;C')
+      if (!weather.description) {
+        node.querySelector('.desc').style.display = 'none'
+        return
+      }
+      node.querySelector('.desc').style.display = 'block'
+      node.querySelector('.desctext').innerHTML = fmt(weather.description)
+      node.querySelector('.icon').src = `https://openweathermap.org/img/w/${fmt(weather.icon)}.png`
     } else {
-      document.querySelector('.weather').style.display = 'none'
+      node.style.display = 'none'
     }
   }
   request.onerror = () => {
-    document.querySelector('.weather').style.display = 'none'
+    node.style.display = 'none'
   }
   request.send()
+}
+
+const getWeather = () => {
+  fetchDisplayWeather(document.querySelector('.weather'), '/weather.json')
+  fetchDisplayWeather(document.querySelector('.localweather'), 'http://pidashboard:8080/')
 }
 
 document.body.addEventListener('click', cycleImage)

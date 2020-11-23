@@ -1,8 +1,7 @@
 'use sanity'
 
 let start = 0
-require('./db')
-  .initialize
+Promise.resolve()
   .then(() => {
     start = Date.now()
     return Promise.resolve()
