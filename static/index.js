@@ -71,7 +71,7 @@ const fetchDisplayWeather = (node, url) => {
 
 const getWeather = () => {
   fetchDisplayWeather(document.querySelector('.weather'), '/weather.json')
-  fetchDisplayWeather(document.querySelector('.localweather'), 'http://pidashboard:8080/')
+  fetchDisplayWeather(document.querySelector('.localweather'), 'http://localhost:8080/')
 }
 setInterval(getWeather, weatherRefresh)
 getWeather()
