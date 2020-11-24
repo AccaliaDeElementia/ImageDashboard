@@ -29,6 +29,11 @@ body {
   color: #FFF;
   font-family: sans-serif;
   font-weight: bold;
+  flex-direction: column;
+}
+
+.text div {
+  flex-direction: row;
 }
 
 .datetime {
@@ -59,8 +64,14 @@ body {
 }
 
 .time,
-.temp {
+.weather .temp {
   font-size: 6em;
+  margin-top: -0.15em;
+  margin-bottom: -.15em;
+}
+
+.localweather .temp {
+  font-size: 4em;
   margin-top: -0.15em;
   margin-bottom: -.15em;
 }
@@ -79,4 +90,37 @@ body {
   display: inline-block;
   width: 50px;
   height: 50px;
+}
+
+.pixel {
+  z-index: 9001;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+}
+
+.top-left {
+  top: 0;
+  left: 0;
+  background-color: #010101;
+}
+
+.top-right {
+  top: 0;
+  right: 0;
+  background-color: #020202;
+}
+
+.bottom-left {
+  bottom: 0;
+  left: 0;
+  background-color: #030303;
+}
+
+.bottom-right {
+  bottom: 0;
+  right: 0;
+  background-color: #040404;
 }

@@ -3,9 +3,10 @@ const { createReadStream } = require('fs')
 const { join } = require('path')
 const { URL } = require('url')
 const http = require('http')
+const socketio = require('socket.io')
 
 const { getWeather } = require('./weather')
-const { getImage } = require('./images')
+const { randomImage, advanceImage, currentImage } = require('./images')
 
 const streamFile = (file, res) => {
   var readStream = createReadStream(file)
@@ -23,7 +24,7 @@ const serveFile = (file, res) => {
 }
 
 const serveImage = async (res) => {
-  const image = getImage((Date.now() / 60 / 1000) | 0)
+  const image = currentImage()
   streamFile(join('/data', image), res)
 }
 
@@ -32,8 +33,36 @@ const serveData = (data, res) => {
   res.end(JSON.stringify(data))
 }
 
+const doWebSocket = (server) => {
+  const io = socketio(server)
+  const id = `${Math.random()}`.slice(2)
+  io.on('connection', client => {
+    client.emit('id', id)
+    client.on('backimage', () => {
+      changed = Date.now()
+      advanceImage(-1)
+      io.emit('imagechange', true)
+    })
+    client.on('nextimage', () => {
+      changed = Date.now()
+      advanceImage(1)
+      io.emit('imagechange', true)
+    })
+  })
+  randomImage()
+  let changed = Date.now()
+  setInterval(() => {
+    if (changed + 60 * 1000 > Date.now()) {
+      return
+    }
+    changed = Date.now()
+    advanceImage()
+    io.emit('imagechange', true)
+  }, 1000)
+}
+
 exports.startServer = () => {
-  http.createServer(function (req, res) {
+  const server = http.createServer(function (req, res) {
     const url = new URL(req.url, 'http://localhost')
     switch (url.pathname) {
       case '/index.html':
@@ -56,6 +85,8 @@ exports.startServer = () => {
         res.statusCode = 404
         res.end('NOT FOUND')
     }
-  }).listen(3030)
+  })
+  doWebSocket(server)
+  server.listen(3030)
   return Promise.resolve()
 }

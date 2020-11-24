@@ -56,6 +56,21 @@ exports.syncImages = async () => {
   images = results
 }
 
-exports.getImage = (index) => {
-  return images[index % images.length]
+let index = 0
+exports.randomImage = () => {
+  index = Math.floor(Math.random() * images.length)
+  return images[index]
+}
+
+exports.advanceImage = (increment = 1) => {
+  index += increment
+  while (index < 0) {
+    index += images.length
+  }
+  index = index % images.length
+  return images[index]
+}
+
+exports.currentImage = () => {
+  return images[index]
 }

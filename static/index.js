@@ -1,17 +1,24 @@
 'use sanity'
+/* global io */
 
 const timeRefresh = 1000
-const imageRefresh = 1 * 60 * 1000
 const weatherRefresh = 10 * 60 * 1000
 
-let nextCycle = Date.now() + imageRefresh
-const cycleImage = () => {
-  nextCycle = Date.now() + imageRefresh
+const socket = io()
+let id = null
+socket.on('id', (newid) => {
+  if (id === null) {
+    id = newid
+  } else if (id !== newid) {
+    location.reload()
+  }
+})
+socket.on('imagechange', () => {
   const path = `/image?${Date.now()}`
   Array.prototype.forEach.apply(document.querySelectorAll('.image'), [img => {
     img.src = path
   }])
-}
+})
 
 const updateTime = () => {
   const now = new Date()
@@ -20,6 +27,10 @@ const updateTime = () => {
   document.querySelector('.time').innerHTML = `${('00' + now.getHours()).slice(-2)}:${('00' + now.getMinutes()).slice(-2)}`
   document.querySelector('.date').innerHTML = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`
 }
+updateTime()
+setInterval(() => {
+  updateTime()
+}, timeRefresh)
 
 const fetchDisplayWeather = (node, url) => {
   const request = new XMLHttpRequest()
@@ -36,17 +47,16 @@ const fetchDisplayWeather = (node, url) => {
           return `${d}${suffix}`
         }
       }
-      if (!weather.temp) {
-        document.querySelector('.weather').style.display = 'none'
-        return
+      const show = (field, text) => {
+        if (!text) {
+          field.style.display = 'none'
+          return
+        }
+        field.style.display = 'flex'
       }
-      node.style.display = 'block'
+      show(node, weather.temp)
       node.querySelector('.temp').innerHTML = fmt(weather.temp, '&deg;C')
-      if (!weather.description) {
-        node.querySelector('.desc').style.display = 'none'
-        return
-      }
-      node.querySelector('.desc').style.display = 'block'
+      show(node.querySelector('.desc'), weather.description)
       node.querySelector('.desctext').innerHTML = fmt(weather.description)
       node.querySelector('.icon').src = `https://openweathermap.org/img/w/${fmt(weather.icon)}.png`
     } else {
@@ -63,15 +73,5 @@ const getWeather = () => {
   fetchDisplayWeather(document.querySelector('.weather'), '/weather.json')
   fetchDisplayWeather(document.querySelector('.localweather'), 'http://pidashboard:8080/')
 }
-
-document.body.addEventListener('click', cycleImage)
-document.body.addEventListener('keydown', cycleImage)
-updateTime()
-getWeather()
-setInterval(() => {
-  updateTime()
-  if (Date.now() >= nextCycle) {
-    cycleImage()
-  }
-}, timeRefresh)
 setInterval(getWeather, weatherRefresh)
+getWeather()

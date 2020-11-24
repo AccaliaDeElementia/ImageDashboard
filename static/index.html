@@ -2,6 +2,7 @@
   <head>
     <title>Dashboard</title>
     <link rel="stylesheet" href="./index.css" />
+    <script src="/socket.io/socket.io.js"></script>
   </head>
   <body>
     <img class="image top" src="/image" />
@@ -18,12 +19,16 @@
       </div>
     </div>
     <div class="text localweather">
-      <div class="temp">Temp *C</div>
+      <div class="temp"></div>
       <div class="desc">
         <span class="desctext"></span>
         <img class="icon"></div>
       </div>
     </div>
     <script type="text/javascript" src="/index.js"></script>
+    <div class="pixel top-left"></div>
+    <div class="pixel top-right"></div>
+    <div class="pixel bottom-left"></div>
+    <div class="pixel bottom-right"></div>
   </body>
 </html>
