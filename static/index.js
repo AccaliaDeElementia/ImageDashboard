@@ -13,11 +13,40 @@ socket.on('id', (newid) => {
     location.reload()
   }
 })
-socket.on('imagechange', () => {
-  const path = `/image?${Date.now()}`
+socket.on('imagechange', (index) => {
+  const path = `/image?${index}`
   Array.prototype.forEach.apply(document.querySelectorAll('.image'), [img => {
     img.src = path
   }])
+})
+
+document.addEventListener('keyup', (evt) => {
+  const keys = {
+    ARROWRIGHT: () => socket.emit('nextimage'),
+    ARROWLEFT: () => socket.emit('backimage')
+  }
+  var key = (evt.ctrlKey ? '<CTRL>' : '') +
+      (evt.altKey ? '<ALT>' : '') +
+      (evt.shiftKey ? '<SHIFT>' : '') +
+      evt.key.toUpperCase()
+  const action = keys[key] || (() => true)
+  action()
+})
+
+const initialScale = window.visualViewport ? window.visualViewport.scale : 1
+document.addEventListener('click', (evt) => {
+  if (window.visualViewport && window.visualViewport.scale > initialScale) {
+    return
+  }
+  const pageWidth = window.innerWidth || document.body.clientWidth
+  const x = evt.pageX
+  if (x < pageWidth / 3) {
+    socket.emit('backimage')
+  } else if (x < pageWidth * 2 / 3) {
+    // pass
+  } else {
+    socket.emit('nextimage')
+  }
 })
 
 const updateTime = () => {

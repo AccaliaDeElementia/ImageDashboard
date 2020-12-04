@@ -68,9 +68,9 @@ exports.advanceImage = (increment = 1) => {
     index += images.length
   }
   index = index % images.length
-  return images[index]
+  return index
 }
 
-exports.currentImage = () => {
-  return images[index]
+exports.currentImage = (override = undefined) => {
+  return images[override !== undefined ? override : index]
 }

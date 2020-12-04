@@ -1,14 +1,26 @@
 'use sanity'
-const { createReadStream } = require('fs')
-const { join } = require('path')
+const { createReadStream, promises: { readFile } } = require('fs')
+const { join, extname } = require('path')
 const { URL } = require('url')
 const http = require('http')
 const socketio = require('socket.io')
 
 const { getWeather } = require('./weather')
 const { randomImage, advanceImage, currentImage } = require('./images')
+const sharp = require('sharp')
 
-const streamFile = (file, res) => {
+const streamImage = async (file, res) => {
+  const data = await readFile(file)
+  const image = await sharp(data)
+    .rotate()
+    .resize(1920, 1080, {
+      fit: sharp.fit.inside,
+      withoutEnlargement: true
+    })
+    .toBuffer()
+  res.end(image)
+}
+const streamFile = async (file, res) => {
   var readStream = createReadStream(file)
   readStream.on('open', function () {
     readStream.pipe(res)
@@ -23,9 +35,14 @@ const serveFile = (file, res) => {
   streamFile(join(__dirname, 'static', file), res)
 }
 
-const serveImage = async (res) => {
-  const image = currentImage()
-  streamFile(join('/data', image), res)
+const serveImage = async (req, res) => {
+  const search = req.search.slice(1)
+  const image = currentImage(search.length > 0 ? search : undefined)
+  if (extname(image).toLowerCase() !== '.gif') {
+    streamImage(join('/data', image), res)
+  } else {
+    streamFile(join('/data', image), res)
+  }
 }
 
 const serveData = (data, res) => {
@@ -40,13 +57,11 @@ const doWebSocket = (server) => {
     client.emit('id', id)
     client.on('backimage', () => {
       changed = Date.now()
-      advanceImage(-1)
-      io.emit('imagechange', true)
+      io.emit('imagechange', advanceImage(-1))
     })
     client.on('nextimage', () => {
       changed = Date.now()
-      advanceImage(1)
-      io.emit('imagechange', true)
+      io.emit('imagechange', advanceImage(1))
     })
   })
   randomImage()
@@ -56,8 +71,7 @@ const doWebSocket = (server) => {
       return
     }
     changed = Date.now()
-    advanceImage()
-    io.emit('imagechange', true)
+    io.emit('imagechange', advanceImage())
   }, 1000)
 }
 
@@ -79,7 +93,7 @@ exports.startServer = () => {
         serveData(getWeather(), res)
         break
       case '/image':
-        serveImage(res)
+        serveImage(url, res)
         break
       default:
         res.statusCode = 404
